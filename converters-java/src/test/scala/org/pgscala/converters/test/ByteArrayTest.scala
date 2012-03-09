@@ -7,6 +7,9 @@ import org.scalatest.GivenWhenThen
 import org.scalatest.matchers.ShouldMatchers
 import scala.util.Random
 
+import org.pgscala._
+import test.TestDb
+
 class ByteArrayTest extends FeatureSpec with GivenWhenThen with ShouldMatchers{
   feature("About to test an String converter"){
     info("I want to test if PGNullableByteArrayConverter works correctly, both in 2 way conversion")
@@ -80,6 +83,30 @@ class ByteArrayTest extends FeatureSpec with GivenWhenThen with ShouldMatchers{
       val arr2 = PGNullableByteArrayConverter.stringToByteArray(str1)
       then ("it should return an Array[byte] value %s" format arr2)
       arr should equal (arr2)
+    }
+
+    scenario("POSTGRES: Array[Byte] to String Nr. 1"){
+       info("test for select '\\xbbbb012345'::bytea;")
+       TestDb.using{ db =>
+        val t = db.row("""SELECT '\\xbbbb012345'::bytea;"""){rS => rS.get[Array[Byte]](1)}.get
+        given ("a starting byte array value of %s" format t)
+        when ("that value is converted to String")
+        val res = new String(t)
+        then ("""It should return a String value "%s"""" format t)
+        res should equal ("\\xbbbb012345")
+      }
+    }
+
+     scenario("POSTGRES: String to Array[Byte] Nr. 1"){
+       info("test for select '\\xbbbb012345'::bytea;")
+       TestDb.using{ db =>
+        val t = db.row("""SELECT '\\xbbbb012345'::bytea;"""){rS => rS.get[String](1)}.get
+        given ("a starting String value of %s" format t)
+        when ("that value is converted to Array[Byte]")
+        val res = t.getBytes()
+        then ("""It should return a Array[Byte] value "%s"""" format res)
+        res should equal ("""\\xbbbb012345""".getBytes())
+      }
     }
   }
 }

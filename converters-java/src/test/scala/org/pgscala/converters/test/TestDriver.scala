@@ -4,6 +4,6 @@ package test
 
 object TestDriver {
   def main(args: Array[String]){
-    (new DoubleTest).execute()
+    (new ByteArrayTest).execute()
   }
 }

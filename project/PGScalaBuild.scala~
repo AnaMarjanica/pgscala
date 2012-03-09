@@ -96,8 +96,6 @@ object Dependencies {
   val c3p0 = "c3p0" % "c3p0" % "0.9.1.2"
 
   val scalaTest = "org.scalatest" %% "scalatest" % "1.7.1" % "test"
-
-  
 }
 
 //  ---------------------------------------------------------------------------
@@ -176,8 +174,9 @@ object PGScalaBuild extends Build {
   lazy val pgjavaConverters = Project(
     "converters-java",
     file("converters-java"),
+    Seq(pgscala),
     settings = bsConvertersJava :+ depsConvertersJava
-  ) dependsOn(pgscala)
+  )
 
   lazy val pgscalaConverters = Project(
     "converters-scala",
