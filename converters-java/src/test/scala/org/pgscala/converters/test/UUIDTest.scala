@@ -5,8 +5,9 @@ package test
 import org.scalatest.FeatureSpec
 import org.scalatest.GivenWhenThen
 import org.scalatest.matchers.ShouldMatchers
-import java.util.UUID;
+import java.util.UUID
 import scala.util.Random
+import org.pgscala.test.TestDb
 
 
 class UUIDTest extends FeatureSpec with GivenWhenThen with ShouldMatchers{
@@ -43,6 +44,31 @@ class UUIDTest extends FeatureSpec with GivenWhenThen with ShouldMatchers{
       val res = PGNullableUUIDConverter stringToUUID t
       then ("It should return a UUID value %s" format res)
       res.toString should equal(t)
+    }
+
+    /*
+     * POSTGRES
+     */
+    scenario("POSTGRESQL: UUID to String Nr. 1"){
+      TestDb.using{ db =>
+        val n = db.row("select 'c4c82f7e-8550-4d05-829b-fa44d5fc0546'::uuid;"){rS => rS.get[UUID](1)}.get
+        given(" a starting UUID value for %s" format n)
+        when("that value is converted to String")
+        val res = n.toString
+        then ("It should return a String value %s" format res)
+        res should equal("c4c82f7e-8550-4d05-829b-fa44d5fc0546")
+      }
+    }
+
+    scenario("POSTGRESQL:String to UUID Nr. 1"){
+      TestDb.using{ db =>
+        val n = db.row("select 'c4c82f7e-8550-4d05-829b-fa44d5fc0546'::uuid;"){rS => rS.get[String](1)}.get
+        given(" a starting String value for %s" format n)
+        when("that value is converted to UUID")
+        val res = UUID.fromString(n)
+        then ("It should return a UUID value %s" format res)
+        res should equal(UUID.fromString("c4c82f7e-8550-4d05-829b-fa44d5fc0546"))
+      }
     }
   }
 }

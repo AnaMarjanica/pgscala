@@ -7,8 +7,7 @@ import org.scalatest.GivenWhenThen
 import org.scalatest.matchers.ShouldMatchers
 import scala.util.Random
 
-import org.pgscala._
-import test.TestDb
+import org.pgscala.test.TestDb
 
 class ByteArrayTest extends FeatureSpec with GivenWhenThen with ShouldMatchers{
   feature("About to test an String converter"){
@@ -86,8 +85,8 @@ class ByteArrayTest extends FeatureSpec with GivenWhenThen with ShouldMatchers{
     }
 
     scenario("POSTGRES: Array[Byte] to String Nr. 1"){
-       info("test for select '\\xbbbb012345'::bytea;")
-       TestDb.using{ db =>
+      info("test for select '\\xbbbb012345'::bytea;")
+      TestDb.using{ db =>
         val t = db.row("""SELECT '\\xbbbb012345'::bytea;"""){rS => rS.get[Array[Byte]](1)}.get
         given ("a starting byte array value of %s" format t)
         when ("that value is converted to String")
@@ -97,16 +96,66 @@ class ByteArrayTest extends FeatureSpec with GivenWhenThen with ShouldMatchers{
       }
     }
 
-     scenario("POSTGRES: String to Array[Byte] Nr. 1"){
-       info("test for select '\\xbbbb012345'::bytea;")
-       TestDb.using{ db =>
+    scenario("POSTGRES: Array[Byte] to String Nr. 2"){
+      info("test for select ''::bytea;")
+      TestDb.using{ db =>
+        val t = db.row("""SELECT ''::bytea;"""){rS => rS.get[Array[Byte]](1)}.get
+        given ("a starting byte array value of zero String length")
+        when ("that value is converted to String")
+        val res = new String(t)
+        then ("""It should return a String value "%s"""" format res)
+        res should equal ("")
+      }
+    }
+
+    scenario("POSTGRES: Array[Byte] to String Nr. 3"){
+      info("test for select '\\xaaccccddff1234'::bytea;")
+      TestDb.using{ db =>
+        val t = db.row("""SELECT '\\xaaccccddff1234'::bytea;"""){rS => rS.get[Array[Byte]](1)}.get
+        given ("a starting byte array value of %s" format t)
+        when ("that value is converted to String")
+        val res = new String(t)
+        then ("""It should return a String value "%s"""" format res)
+        res should equal ("\\xaaccccddff1234")
+      }
+    }
+
+
+    scenario("POSTGRES: String to Array[Byte] Nr. 1"){
+      info("test for select '\\xbbbb012345'::bytea;")
+      TestDb.using{ db =>
         val t = db.row("""SELECT '\\xbbbb012345'::bytea;"""){rS => rS.get[String](1)}.get
         given ("a starting String value of %s" format t)
         when ("that value is converted to Array[Byte]")
         val res = t.getBytes()
-        then ("""It should return a Array[Byte] value "%s"""" format res)
-        res should equal ("""\\xbbbb012345""".getBytes())
+        then ("""It should return an Array[Byte] value "%s"""" format res)
+        res should equal ("""\\xbbbb012345""".getBytes)
       }
     }
+
+    scenario("POSTGRES: String to Array[Byte] Nr. 2"){
+      info("test for select ''::bytea;")
+      TestDb.using{ db =>
+        val t = db.row("""SELECT ''::bytea;"""){rS => rS.get[String](1)}.get
+        given ("a starting String value of zero String length")
+        when ("that value is converted to Array[Byte]")
+        val res = t.getBytes()
+        then ("""It should return an Array[Byte] value "%s"""" format res)
+        res should equal ("".getBytes)
+      }
+    }
+
+    scenario("POSTGRES: String to Array[Byte] Nr. 3"){
+      info("test for select '\\xaaccccddff1234'::bytea;")
+      TestDb.using{ db =>
+        val t = db.row("""SELECT '\\xaaccccddff1234'::bytea;"""){rS => rS.get[String](1)}.get
+        given ("a starting String value of %s" format t)
+        when ("that value is converted to Array[Byte]")
+        val res = t.getBytes
+        then ("""It should return an Array[Byte] value "%s"""" format res)
+        res should equal ("\\xaaccccddff1234".getBytes)
+      }
+    }
+
   }
 }

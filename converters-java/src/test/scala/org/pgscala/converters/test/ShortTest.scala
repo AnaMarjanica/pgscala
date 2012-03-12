@@ -6,6 +6,7 @@ import org.scalatest.FeatureSpec
 import org.scalatest.GivenWhenThen
 import org.scalatest.matchers.ShouldMatchers
 import scala.util.Random
+import org.pgscala.test.TestDb
 
 class ShortTest extends FeatureSpec with GivenWhenThen with ShouldMatchers{
   feature("About to test an Short converter"){
@@ -64,5 +65,76 @@ class ShortTest extends FeatureSpec with GivenWhenThen with ShouldMatchers{
       then ("It should return an Short value %s" format n)
       res.toString should equal(n)
     }
+
+    /*
+     * POSTGRES
+     */
+
+    scenario("POSTGRESQL: Short to String Nr. 1"){
+      TestDb.using{ db =>
+        val n = db.row("select 32767::smallint;"){rS => rS.get[Short](1)}.get
+        given(" a starting Short value for %s" format n)
+        when("that value is converted to String")
+        val res = n.toString
+        then ("It should return a String value %s" format res)
+        res should equal("32767")
+      }
+    }
+
+    scenario("POSTGRESQL: Short to String Nr. 2"){
+      TestDb.using{ db =>
+        val n = db.row("select -32767::smallint;"){rS => rS.get[Short](1)}.get
+        given(" a starting Short value for %s" format n)
+        when("that value is converted to String")
+        val res = n.toString
+        then ("It should return a String value %s" format res)
+        res should equal("-32767")
+      }
+    }
+
+    scenario("POSTGRESQL: Short to String Nr. 3"){
+      TestDb.using{ db =>
+        val n = db.row("select 0::smallint;"){rS => rS.get[Short](1)}.get
+        given(" a starting Short value for %s" format n)
+        when("that value is converted to String")
+        val res = n.toString
+        then ("It should return a String value %s" format res)
+        res should equal("0")
+      }
+    }
+
+    scenario("POSTGRESQL: String to Short Nr. 1"){
+      TestDb.using{ db =>
+        val n = db.row("select 32767::smallint;"){rS => rS.get[String](1)}.get
+        given(" a starting String value for %s" format n)
+        when("that value is converted to Short")
+        val res = n.toShort
+        then ("It should return a Short value %s" format res)
+        res should equal(32767)
+      }
+    }
+
+    scenario("POSTGRESQL: String to Short Nr. 2"){
+      TestDb.using{ db =>
+        val n = db.row("select -32767::smallint;"){rS => rS.get[String](1)}.get
+        given(" a starting String value for %s" format n)
+        when("that value is converted to Short")
+        val res = n.toShort
+        then ("It should return a Short value %s" format res)
+        res should equal(-32767)
+      }
+    }
+
+    scenario("POSTGRESQL: String to Short Nr. 3"){
+      TestDb.using{ db =>
+        val n = db.row("select 0::smallint;"){rS => rS.get[String](1)}.get
+        given(" a starting String value for %s" format n)
+        when("that value is converted to Short")
+        val res = n.toShort
+        then ("It should return a Short value %s" format res)
+        res should equal(0)
+      }
+    }
+
   }
 }
